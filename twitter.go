@@ -200,7 +200,16 @@ func decodeResponse(resp *http.Response, data interface{}) error {
 	if resp.StatusCode != 200 {
 		return newApiError(resp)
 	}
-	return json.NewDecoder(resp.Body).Decode(data)
+	// return json.NewDecoder(resp.Body).Decode(data)
+	//
+	// DEBUG PRINT
+	buf := bytes.NewBuffer(nil)
+	_, err := buf.ReadFrom(resp.Body)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(buf.Bytes()))
+	return json.NewDecoder(buf).Decode(data)
 }
 
 func NewApiError(resp *http.Response) *ApiError {
