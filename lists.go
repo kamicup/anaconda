@@ -18,6 +18,22 @@ func (a TwitterApi) CreateList(name, description string, v url.Values) (list Lis
 	return list, (<-response_ch).err
 }
 
+//AddUserToListOfSlug implements /lists/members/create.json
+func (a TwitterApi) AddUsersToList(userId, slug string, ownerId int64, v url.Values) (users []User, err error) {
+	if v == nil {
+		v = url.Values{}
+	}
+	v.Set("slug", slug)
+	v.Set("owner_id", strconv.FormatInt(ownerId, 10))
+	v.Set("user_id", userId)
+
+	var addUserToListResponse AddUserToListResponse //TODO change?
+
+	response_ch := make(chan response)
+	a.queryQueue <- query{BaseUrl + "/lists/members/create_all.json", v, &addUserToListResponse, _POST, response_ch}
+	return addUserToListResponse.Users, (<-response_ch).err
+}
+
 // AddUserToList implements /lists/members/create.json
 func (a TwitterApi) AddUserToList(screenName string, listID int64, v url.Values) (users []User, err error) {
 	if v == nil {
